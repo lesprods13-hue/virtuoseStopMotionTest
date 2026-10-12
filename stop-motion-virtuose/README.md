@@ -8,6 +8,7 @@ Tout fonctionne dans le navigateur, sans installation et sans compte.
 ## Fonctionnalités
 
 - **Tournage photo par photo** avec la caméra de l'ordinateur, de la tablette ou du téléphone
+- **Sur téléphone**, à l'horizontale (conseillé) : l'image à gauche, les outils à droite ; à la verticale : les réglages s'ouvrent dans un tiroir qui monte du bas. Plus besoin de faire défiler la page
 - **Calque** : la dernière photo s'affiche en transparence pour bien placer ses personnages
 - **Formats** paysage ou portrait, choisis à la création du film
 - **Fond vert** : pipette pour choisir la couleur à effacer, vues Résultat / Masque / Original, réglages fins (tolérance, douceur, nettoyage, bords, reflets)
@@ -16,8 +17,8 @@ Tout fonctionne dans le navigateur, sans installation et sans compte.
 - **Vitesse de lecture** réglable (4 à 24 images par seconde), lecture en boucle, plein écran
 - **Annuler** la dernière photo ou la dernière suppression (Ctrl+Z)
 - **Doublage** au micro une fois le tournage terminé
-- **Export** : vidéo (avec la voix), images PNG en .zip, sauvegarde du projet ; partage direct sur téléphone
-- **Projets** : rechercher, renommer, dupliquer, exporter, supprimer
+- **Export** : la vidéo (avec le fond vert, les effets et la voix) se prépare automatiquement, puis on la **partage** (sur téléphone) ou on la **télécharge**
+- **Projets** : rechercher, renommer, dupliquer, exporter la vidéo, supprimer
 - **Paramètres** : français / anglais, thème clair ou sombre, son, miroir, grille
 - Rubrique **Apprendre** : les bases du stop motion, le fond vert, le doublage et les grands films
 
@@ -38,7 +39,7 @@ En ligne (HTTPS), la caméra et le micro fonctionnent aussi sur téléphone, et 
 ## Données
 
 Les films sont enregistrés **uniquement dans le navigateur** de l'appareil utilisé (IndexedDB).
-Rien n'est envoyé sur internet. Pour changer d'appareil, utilise **Exporter → Sauvegarde du projet**, puis **Importer** sur l'autre appareil.
+Rien n'est envoyé sur internet. Les films restent sur l'appareil où ils ont été créés.
 
 ## Structure
 
@@ -48,4 +49,4 @@ manifest.json     informations pour l'installation sur l'écran d'accueil
 icons/            icônes de l'application
 ```
 
-Une connexion internet sert seulement à charger la police Fredoka et la bibliothèque JSZip (export .zip).
+Une connexion internet sert seulement à charger la police Fredoka.

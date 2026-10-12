@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root{
  --bg:#FAF9F6;--surface:#FFFFFF;--soft:#F3F1EC;--line:#E5E2DA;--ink:#1F1D2B;--muted:#6F6B7D;
@@ -410,7 +409,115 @@ h1,h2,h3{font-weight:700}
 .menu-item .mv{margin-left:auto;color:var(--muted);font-size:14px}
 #stageWrap:fullscreen{background:#000}
 #stageWrap:fullscreen .stage-box{width:100vw!important;height:100vh!important;max-width:calc(100vh*var(--ar,1.7778));max-height:calc(100vw/var(--ar,1.7778))}
-#exShareNow{width:100%;margin-top:12px}
+/* ===== v1.6 : studio sur téléphone (vertical = tiroir, horizontal = rail), export vidéo ===== */
+#dubPanel .pbody{padding:16px}
+#studio .badge,#studio .hint{pointer-events:none}
+#studio .m-only,#studio .mlbl,#studio .sheet-head,#studio .sheet-bg{display:none}
+.rot-tip{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:8px;background:var(--yellow);color:#22203F;border:2.5px solid var(--edge);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;font-weight:600;box-shadow:0 3px 0 var(--edge);white-space:nowrap;max-width:calc(100% - 20px)}
+.rot-tip span{overflow:hidden;text-overflow:ellipsis}
+.rot-tip .ico{width:18px;height:18px;animation:rot 2.4s ease-in-out infinite}
+@keyframes rot{0%,30%{transform:rotate(0)}55%,100%{transform:rotate(-90deg)}}
+.rot-tip button{border:0;background:transparent;padding:2px;display:grid;place-items:center;cursor:pointer;color:inherit}
+.rot-tip button .ico{animation:none;width:16px;height:16px}
+
+/* commun aux deux modes téléphone */
+#studio.m-port,#studio.m-land{height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#studio.m-port .s-main,#studio.m-land .s-main{flex:1;min-height:0;display:grid;gap:0}
+#studio.m-port .s-left,#studio.m-land .s-left,#studio.m-port #shootBar,#studio.m-land #shootBar,#studio.m-port #dubBar,#studio.m-land #dubBar{display:contents}
+#studio.m-port .stage-wrap,#studio.m-land .stage-wrap{grid-area:stage;height:auto;min-height:0;flex:none}
+#studio.m-port .strip-wrap,#studio.m-land .strip-wrap{grid-area:strip}
+#studio.m-port .m-only,#studio.m-land .m-only{display:inline-flex}
+#studio.m-port .mlbl,#studio.m-land .mlbl{display:inline}
+#studio.m-port .g-nav,#studio.m-port .g-tools,#studio.m-land .g-nav,#studio.m-land .g-tools{display:flex}
+#studio.m-port #tPrev,#studio.m-port #tNext,#studio.m-port .g-nav .counter,#studio.m-land #tPrev,#studio.m-land #tNext,#studio.m-land .g-nav .counter{display:none}
+#studio.sheet-open .rot-tip{display:none}
+#studio.m-port .cell,#studio.m-land .cell{height:50px}
+#studio.m-port .cell.land,#studio.m-land .cell.land{width:89px}
+#studio.m-port .cell.port,#studio.m-land .cell.port{width:28px}
+#studio.m-port .cell.live,#studio.m-land .cell.live{width:50px}
+#studio.m-port .strip,#studio.m-land .strip{padding:8px 10px}
+#studio.m-port .tool,#studio.m-land .tool{flex-direction:column;justify-content:center;gap:2px;min-height:52px;min-width:0;padding:4px 2px;font-size:11px;line-height:1.1;border-radius:12px;width:auto;white-space:nowrap}
+#studio.m-port .tool .ico,#studio.m-land .tool .ico{width:20px;height:20px}
+#studio.m-port .tool b,#studio.m-land .tool b{font-size:16px;line-height:1}
+#studio.m-port .tool small,#studio.m-land .tool small{margin:0;font-size:11px}
+#studio.m-port #tMore,#studio.m-land #tMore{border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge);margin-bottom:3px;background:var(--surface)}
+#studio .mtool.on{background:var(--violet);color:#fff}
+#studio.m-port .acc[data-acc="film"] .sub,#studio.m-land .acc[data-acc="film"] .sub{display:none}
+
+/* le tiroir des réglages */
+#studio.m-port #shootPanel,#studio.m-land #shootPanel{position:fixed;z-index:60;display:flex;flex-direction:column;background:var(--surface);border:2.5px solid var(--edge);transition:transform .3s cubic-bezier(.2,.85,.25,1),visibility .3s;visibility:hidden}
+#studio.m-port #shootPanel{left:0;right:0;bottom:0;height:56dvh;border-radius:22px 22px 0 0;border-bottom:0;transform:translateY(105%);box-shadow:0 -6px 0 var(--edge)}
+#studio.m-land #shootPanel{top:0;bottom:0;right:0;width:min(400px,58vw);border-radius:22px 0 0 22px;border-right:0;transform:translateX(105%);box-shadow:-6px 0 0 var(--edge)}
+#studio.sheet-open #shootPanel{transform:none;visibility:visible}
+#studio.m-port .sheet-head,#studio.m-land .sheet-head{display:flex;align-items:center;gap:8px;padding:10px 10px 8px 12px;border-bottom:2px solid var(--line);position:relative;flex:none;touch-action:none}
+#studio .stabs{flex:1;display:flex;gap:4px;background:var(--soft);border:2px solid var(--edge);border-radius:14px;padding:3px;min-width:0}
+#studio .stab{flex:1;border:0;background:transparent;border-radius:10px;padding:7px 4px;font:inherit;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#studio .stab.on{background:var(--yellow);color:#22203F}
+#studio.m-port .sheet-head .grab{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:44px;height:5px;border-radius:9px;background:var(--line)}
+#studio.m-port .sheet-head{padding-top:16px}
+#studio.m-port .pbody,#studio.m-land .pbody{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#studio.m-port .acc,#studio.m-land .acc{border:0}
+#studio.m-port .acc>summary,#studio.m-land .acc>summary{display:none}
+#studio.m-port .acc:not([open]),#studio.m-land .acc:not([open]){display:none}
+#studio.m-port .accb,#studio.m-land .accb{padding:12px 16px 28px;animation:none}
+#studio.m-port .sheet-bg,#studio.m-land .sheet-bg{display:block;position:fixed;inset:0;z-index:59;background:rgba(15,13,24,.16);opacity:0;pointer-events:none;transition:opacity .25s}
+#studio.sheet-open .sheet-bg{opacity:1;pointer-events:auto}
+#studio.sheet-open.m-port .stage-wrap{align-items:flex-start;padding-top:10px}
+#studio.sheet-open.m-land .stage-wrap{justify-content:flex-start;padding-left:10px}
+
+/* ---- téléphone à la verticale ---- */
+#studio.m-port .s-main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto auto;grid-template-areas:"stage" "bar" "strip" "dpanel"}
+#studio.m-port #shootRow,#studio.m-port #dubBar>.bar{grid-area:bar}
+#studio.m-port #shootRow{display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:"nav shut done" "tools tools tools";align-items:center;gap:8px 8px;padding:8px 10px 4px}
+#studio.m-port .g-nav{grid-area:nav;justify-self:start;gap:4px}
+#studio.m-port #tShoot{grid-area:shut;margin:0 0 5px}
+#studio.m-port #tDone{grid-area:done;justify-self:end}
+#studio.m-port .g-tools{grid-area:tools;gap:6px;width:100%}
+#studio.m-port .g-tools .tool{flex:1 1 0}
+#studio.m-port .frame-tools{padding:8px 10px 0;gap:6px;flex-wrap:nowrap}
+#studio.m-port .frame-tools .btn{flex:1 1 0;padding:0 4px;font-size:12px;gap:4px;min-width:0}
+#studio.m-port .frame-tools .btn .ico{width:16px;height:16px}
+#studio.m-port #dubPanel{grid-area:dpanel;border:0;border-top:2.5px solid var(--edge);max-height:34dvh;min-height:0}
+#studio.m-port #dubPanel .pbody{overflow-y:auto;padding:12px 16px}
+#studio.m-port #dubBar>.bar{padding:10px 12px}
+
+/* ---- téléphone à l'horizontale ---- */
+#studio.m-land .s-top{padding:4px 8px;gap:6px}
+#studio.m-land .s-top .btn{min-height:38px}
+#studio.m-land .pname{font-size:16px;padding:4px 6px}
+#studio.m-land .s-main{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"stage rail" "strip rail"}
+#studio.m-land #shootRow{grid-area:rail;width:172px;display:grid;grid-template-columns:1fr;align-content:space-evenly;justify-items:center;gap:6px;padding:6px 8px;border-top:0;border-left:2.5px solid var(--edge);overflow-y:auto}
+#studio.m-land .g-nav{gap:6px;justify-content:center}
+#studio.m-land #tShoot{margin:0 0 5px}
+#studio.m-land .g-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:100%}
+#studio.m-land .g-tools .tool{min-height:46px;font-size:10.5px;padding:3px 1px;letter-spacing:-.1px}
+#studio.m-land #tDone{width:100%;justify-content:center}
+#studio.m-land .strip{padding:6px 10px}
+#studio.m-land .cell{height:42px}
+#studio.m-land .cell.land{width:75px}#studio.m-land .cell.port{width:24px}#studio.m-land .cell.live{width:42px}
+#studio.m-land .frame-tools{padding:6px 10px 0}
+#studio.m-land .frame-tools .btn span{display:none}
+#studio.m-land .frame-tools .btn{width:38px;padding:0}
+#studio.m-land #dubBar>.bar{grid-area:strip;padding:6px 10px;gap:10px}
+#studio.m-land #dubBar .shutter{width:56px;height:56px}
+#studio.m-land #dubPanel{grid-area:rail;width:240px;border:0;border-left:2.5px solid var(--edge);min-height:0}
+#studio.m-land #dubPanel .pbody{overflow-y:auto;padding:12px 14px}
+
+/* ---- fenêtre d'export ---- */
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.mhead h3{margin:0}
+.xbtn{width:42px!important;min-height:42px!important;border:2.5px solid var(--edge)!important;box-shadow:0 3px 0 var(--edge)!important;background:var(--surface)!important;border-radius:50%!important;margin-bottom:3px!important;flex:none}
+.xbtn .ico{width:20px;height:20px;stroke-width:2.6}
+.exstage{display:flex;justify-content:center;background:#000;border-radius:12px;border:2.5px solid var(--edge);overflow:hidden;min-height:60px}
+#exPreview,#exVid{display:none;max-width:100%;max-height:42vh;margin:0;border-radius:0;background:#000}
+#exPreview.on,#exVid.on{display:block}
+#mExport .progress{margin-top:12px}
+#exMsg{margin:12px 0 4px;font-weight:600;text-align:center;min-height:1.4em}
+#exMsg.ok{color:var(--blue)}
+#mExport .exopts{margin-top:10px}
+#mExport .exopt[disabled]{opacity:.4}
+@media (max-height:520px){#exPreview,#exVid{max-height:34vh}#mExport .mbox{padding:14px 18px}#mExport .exopt{min-height:50px}}
+@media (prefers-reduced-motion: reduce){.rot-tip .ico{animation:none}#studio.m-port #shootPanel,#studio.m-land #shootPanel{transition:none}}
 </style>
 </head>
 <body>
@@ -452,6 +559,8 @@ h1,h2,h3{font-weight:700}
  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
  <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/></symbol>
  <symbol id="logo" viewBox="0 0 64 64"><rect x="3" y="3" width="58" height="58" rx="17" fill="#FFD43B" stroke="#22203F" stroke-width="4"/><path d="M14 24h36v24a4 4 0 01-4 4H18a4 4 0 01-4-4z" fill="#fff" stroke="#22203F" stroke-width="4" stroke-linejoin="round"/><path d="M13 16.5l34-6 1.4 7.6-34 6z" fill="#FF4D4D" stroke="#22203F" stroke-width="4" stroke-linejoin="round"/><path d="M22 15l5 6M32 13.3l5 6" stroke="#22203F" stroke-width="3.5" stroke-linecap="round"/><path d="M28 31l10 6-10 6z" fill="#FF4D4D" stroke="#22203F" stroke-width="3" stroke-linejoin="round"/></symbol>
+ <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+ <symbol id="i-rotate" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M21 12a9 9 0 01-9 9M3 12a9 9 0 019-9"/><path d="M12 21l2-2-2-2M12 3l-2 2 2 2"/></symbol>
  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
 </svg>
 
@@ -480,7 +589,7 @@ h1,h2,h3{font-weight:700}
 <section id="studio" class="screen">
  <header class="s-top">
   <button class="btn icon ghost" id="sBack" data-i18n-title="backHome"><svg class="ico"><use href="#i-home"/></svg></button>
-  <input class="pname" id="pName" maxlength="60" aria-label="Nom">
+  <input class="pname" id="pName" maxlength="60" data-i18n-title="filmName">
   <div class="stepseg" role="tablist">
    <button data-step="shoot" class="on"><svg class="ico"><use href="#i-cam"/></svg><span data-i18n="stepShoot"></span></button>
    <button data-step="dub"><svg class="ico"><use href="#i-mic"/></svg><span data-i18n="stepDub"></span></button>
@@ -491,6 +600,7 @@ h1,h2,h3{font-weight:700}
  <div class="s-main">
   <div class="s-left">
    <div class="stage-wrap" id="stageWrap">
+    <div class="rot-tip" id="rotTip" hidden><svg class="ico"><use href="#i-rotate"/></svg><span id="rotTipTx"></span><button id="rotTipX" data-i18n-title="close"><svg class="ico"><use href="#i-x"/></svg></button></div>
     <div class="stage-box" id="stageBox">
      <canvas id="stage" width="960" height="540"></canvas>
      <div class="badge" id="badge"><span class="dot"></span><span id="badgeTxt"></span></div>
@@ -508,8 +618,8 @@ h1,h2,h3{font-weight:700}
     </div>
    </div>
    <div id="shootBar">
-    <div class="bar">
-     <div class="grp">
+    <div class="bar" id="shootRow">
+     <div class="grp g-nav">
       <button class="btn icon ghost" id="tUndo" data-i18n-title="undo" disabled><svg class="ico"><use href="#i-undo"/></svg></button>
       <button class="btn icon ghost" id="tPrev" data-i18n-title="prevFrame"><svg class="ico"><use href="#i-prev"/></svg></button>
       <button class="btn icon blue" id="tPlay" data-i18n-title="play"><svg class="ico"><use href="#i-play" id="playUse"/></svg></button>
@@ -517,15 +627,17 @@ h1,h2,h3{font-weight:700}
       <span class="counter" id="counter"></span>
      </div>
      <button class="shutter" id="tShoot" data-i18n-title="takePhoto"><svg class="ico"><use href="#i-cam"/></svg></button>
-     <div class="grp">
-      <button class="btn sm pill-btn" id="tOnion" data-pop="popOnion" data-i18n-title="onionSkin"><svg class="ico"><use href="#i-onion"/></svg><span data-i18n="onionShort"></span></button>
-      <button class="btn sm pill-btn" id="tSpeed" data-pop="popSpeed" data-i18n-title="speedTitle"><b id="tSpeedV">8</b><small>i/s</small></button>
-      <button class="btn sm icon ghost" id="tMore" data-pop="popMore" data-i18n-title="moreTools"><svg class="ico"><use href="#i-dots"/></svg></button>
-      <button class="btn sm yellow" id="tDone"><svg class="ico"><use href="#i-check"/></svg><span data-i18n="toDub"></span></button>
+     <div class="grp g-tools">
+      <button class="btn sm tool m-only mtool" id="mChroma" data-sheet="chroma"><svg class="ico"><use href="#i-green"/></svg><span data-i18n="accChroma"></span></button>
+      <button class="btn sm tool m-only mtool" id="mFx" data-sheet="fx"><svg class="ico"><use href="#i-spark"/></svg><span data-i18n="toolFx"></span></button>
+      <button class="btn sm pill-btn tool" id="tOnion" data-pop="popOnion" data-i18n-title="onionSkin"><svg class="ico"><use href="#i-onion"/></svg><span data-i18n="onionShort"></span></button>
+      <button class="btn sm pill-btn tool" id="tSpeed" data-pop="popSpeed" data-i18n-title="speedTitle"><b id="tSpeedV">8</b><small>i/s</small></button>
+      <button class="btn sm tool m-only mtool" id="mFilm" data-sheet="film"><svg class="ico"><use href="#i-film"/></svg><span data-i18n="toolFilm"></span></button>
+      <button class="btn sm icon ghost tool" id="tMore" data-pop="popMore" data-i18n-title="moreTools"><svg class="ico"><use href="#i-dots"/></svg><span class="mlbl" data-i18n="toolMore"></span></button>
      </div>
+     <button class="btn sm yellow" id="tDone"><svg class="ico"><use href="#i-check"/></svg><span data-i18n="toDub"></span></button>
     </div>
-    
-<div class="strip-wrap">
+    <div class="strip-wrap">
      <div class="frame-tools" id="frameTools">
       <button class="btn sm" id="fLeft"><svg class="ico"><use href="#i-left"/></svg><span data-i18n="moveLeft"></span></button>
       <button class="btn sm" id="fRight"><svg class="ico"><use href="#i-right"/></svg><span data-i18n="moveRight"></span></button>
@@ -545,6 +657,7 @@ h1,h2,h3{font-weight:700}
    </div>
   </div>
   <aside class="s-panel" id="shootPanel">
+   <div class="sheet-head"><span class="grab" aria-hidden="true"></span><div class="stabs" role="tablist"><button class="stab" data-sheet="chroma" data-i18n="accChroma"></button><button class="stab" data-sheet="fx" data-i18n="toolFx"></button><button class="stab" data-sheet="film" data-i18n="toolFilm"></button></div><button class="btn icon ghost" id="sheetX" data-i18n-title="close"><svg class="ico"><use href="#i-x"/></svg></button></div>
    <div class="pbody">
    <details class="acc" data-acc="chroma">
     <summary><span class="aic" style="background:#38B54A"><svg class="ico"><use href="#i-green"/></svg></span><span class="at"><b data-i18n="accChroma"></b><small id="accChromaSt"></small></span><svg class="ico chev"><use href="#i-chev"/></svg></summary>
@@ -559,8 +672,8 @@ h1,h2,h3{font-weight:700}
       <button class="btn" id="cPickAdd" data-i18n-title="pickAdd"><svg class="ico"><use href="#i-drop"/></svg><svg class="ico" style="width:14px;height:14px;margin-left:-6px"><use href="#i-plus"/></svg></button>
      </div>
      <div class="dots"><span class="muted" style="font-size:14px;margin-right:4px" data-i18n="or"></span>
-      <button class="dotbtn" id="cGreen" style="background:#00B140" aria-label="Vert"></button>
-      <button class="dotbtn" id="cBlue" style="background:#0047BB" aria-label="Bleu"></button></div>
+      <button class="dotbtn" id="cGreen" style="background:#00B140" data-i18n-title="green"></button>
+      <button class="dotbtn" id="cBlue" style="background:#0047BB" data-i18n-title="blue"></button></div>
 
      <div class="kstep"><span class="kn">2</span><b data-i18n="stepBg"></b></div>
      <div class="chips" id="bgChips">
@@ -626,6 +739,7 @@ h1,h2,h3{font-weight:700}
    </div>
   </aside>
  </div>
+ <div class="sheet-bg" id="sheetBg"></div>
  <video id="video" class="hidden-video" playsinline muted autoplay></video>
 </section>
 
@@ -636,8 +750,7 @@ h1,h2,h3{font-weight:700}
  <div class="wrap">
   <div class="ptools">
    <label class="search"><svg class="ico"><use href="#i-search"/></svg><input id="pSearch" data-i18n-ph="searchPh"></label>
-   <select id="pSort" aria-label="Tri"><option value="updated" data-i18n="sortRecent"></option><option value="name" data-i18n="sortName"></option></select>
-   <button class="btn" id="pImport"><svg class="ico"><use href="#i-up"/></svg><span data-i18n="importProject"></span></button>
+   <select id="pSort" data-i18n-title="sortBy"><option value="updated" data-i18n="sortRecent"></option><option value="name" data-i18n="sortName"></option></select>
   </div>
   <div class="pgrid" id="pGrid"></div>
  </div>
@@ -666,7 +779,7 @@ h1,h2,h3{font-weight:700}
   <div class="setgroup">
    <div class="setrow"><div><span data-i18n="wipe"></span><small data-i18n="wipeSub"></small></div><button class="btn sm danger" id="setWipe" data-i18n="wipeBtn"></button></div>
   </div>
-  <p class="muted" style="text-align:center;font-size:13px">Stop Motion Virtuose · v1.5</p>
+  <p class="muted" style="text-align:center;font-size:13px">Stop Motion Virtuose · v1.6</p>
  </div>
 </section>
 
@@ -689,24 +802,18 @@ h1,h2,h3{font-weight:700}
  <h3 id="mpTitle"></h3><input class="tinput" id="mpInput" maxlength="60">
  <div class="macts"><button class="btn ghost" id="mpNo" data-i18n="cancel"></button><button class="btn primary" id="mpYes" data-i18n="ok"></button></div>
 </div></div>
-<div class="modal" id="mExport" role="dialog" aria-modal="true"><div class="mbox">
- <h3 data-i18n="exportTitle"></h3>
+<div class="modal" id="mExport" role="dialog" aria-modal="true" aria-labelledby="exTitle"><div class="mbox">
+ <div class="mhead"><h3 id="exTitle" data-i18n="exportTitle"></h3><button class="btn icon ghost xbtn" id="exX" data-i18n-title="close"><svg class="ico"><use href="#i-x"/></svg></button></div>
+ <div class="exstage"><canvas id="exPreview" width="960" height="540"></canvas><video id="exVid" playsinline controls loop></video></div>
+ <div class="progress" id="exProg"><i></i></div>
+ <p id="exMsg"></p>
  <div class="exopts" id="exOpts">
   <button class="btn red exopt" id="exShare" hidden><svg class="ico"><use href="#i-share"/></svg><span><span data-i18n="exShare"></span><small data-i18n="exShareSub"></small></span></button>
-  <button class="btn primary exopt" id="exVideo"><svg class="ico"><use href="#i-film"/></svg><span><span data-i18n="exVideo"></span><small id="exVideoSub"></small></span></button>
-  <button class="btn exopt" id="exZip"><svg class="ico"><use href="#i-image"/></svg><span><span data-i18n="exZip"></span><small data-i18n="exZipSub"></small></span></button>
-  <button class="btn exopt" id="exPng"><svg class="ico"><use href="#i-image"/></svg><span><span data-i18n="exPng"></span><small data-i18n="exPngSub"></small></span></button>
-  <button class="btn exopt" id="exJson"><svg class="ico"><use href="#i-folder"/></svg><span><span data-i18n="exJson"></span><small data-i18n="exJsonSub"></small></span></button>
+  <button class="btn primary exopt" id="exDownload"><svg class="ico"><use href="#i-down"/></svg><span><span data-i18n="exDownload"></span><small id="exDownloadSub"></small></span></button>
  </div>
- <canvas id="exPreview" width="960" height="540"></canvas>
- <div class="progress" id="exProg"><i></i></div>
- <button class="btn red" id="exShareNow" hidden><svg class="ico"><use href="#i-share"/></svg><span data-i18n="shareNow"></span></button>
- <p id="exMsg" style="margin-top:10px"></p>
- <div class="macts"><button class="btn" id="exClose" data-i18n="close"></button></div>
 </div></div>
 <input type="file" id="fileFrames" accept="image/*" multiple hidden>
 <input type="file" id="fileBg" accept="image/*" multiple hidden>
-<input type="file" id="fileProject" accept=".json,application/json" hidden>
 <div class="toast" id="toast" role="status"></div>
 <div class="pop" id="popSpeed" role="dialog">
  <h4 data-i18n="speedTitle"></h4>
@@ -1056,7 +1163,7 @@ async function shoot(){if(ST.playing)stopPlay();if(ST.busy)return;
 function fileToData(f){return blobToData(f)}
 async function normalizeImage(data){const img=await loadImg(data);const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,W,H);drawCover(x,img,W,H,false);return c.toDataURL('image/jpeg',.9)}
 async function importFrames(files){const list=[...files].filter(f=>f.type.startsWith('image/')).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));const out=[];
- for(const f of list){try{out.push(await normalizeImage(await fileToData(f)))}catch(e){}}if(!out.length)return;await addFrames(out);toast(t('imported',{n:out.length}));selectFrame(ST.frames.length-1)}
+ for(const f of list){try{out.push(await normalizeImage(await fileToData(f)))}catch(e){}}if(!out.length)return;await addFrames(out);toast(out.length===1?t('imported1'):t('imported',{n:out.length}));selectFrame(ST.frames.length-1)}
 function shiftFx(from,delta){ST.p.effects.forEach(e=>{if(e.start>from)e.start=Math.max(0,e.start+delta)})}
 async function deleteFrame(){const i=ST.cur;if(i<0)return;if(!await confirmBox(t('delFrameT'),t('delFrameX',{n:i+1}),t('delete')))return;const p=ST.p,f=ST.frames[i];
  ST.frames.splice(i,1);p.frameIds.splice(i,1);ST.keyCache.delete(f.id);shiftFx(i,-1);try{await DB.del('frames',p.id+':'+f.id)}catch(e){}scheduleSave();renderStrip();if(ST.frames.length)selectFrame(Math.min(i,ST.frames.length-1));else goLive()}
@@ -1201,35 +1308,6 @@ function setExBusy(b){ST.busy=b;$$('#exOpts .btn,#exClose').forEach(x=>x.disable
 function openExport(){stopPlay();dubStopAll();setPicking(false);exMsg('');exProg(null);exC.classList.remove('on');setExBusy(false);$('#exVideoSub').textContent=ST.voice?t('exVideoSubVoice'):t('exVideoSub');$('#mExport').classList.add('on');getDl()}
 function closeExport(){$('#mExport').classList.remove('on');if(ST.step==='dub'){DUB.last=-1;dubShow(0)}else refresh()}
 const canvasBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
-async function exportVideo(){const p=ST.p,n=ST.frames.length;if(!n){exMsg(t('noFrames'));return}
- const withA=!!ST.voice;const types=withA?['video/mp4;codecs=avc1,mp4a.40.2','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4']:['video/mp4;codecs=avc1','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
- const mime=window.MediaRecorder&&MediaRecorder.isTypeSupported?types.find(m=>MediaRecorder.isTypeSupported(m)):null;
- if(!mime||!exC.captureStream){exMsg(t('noVideoExport'));return}
- setExBusy(true);exC.classList.add('on');exMsg(t('recordingVideo'));exProg(0);let src=null;
- try{compose(exX,layerFor(0),0);let stream=exC.captureStream(p.fps);
-  if(withA){try{const a=ac();await a.resume();const buf=await a.decodeAudioData(dataToBuf(ST.voice.data));const dest=a.createMediaStreamDestination();src=a.createBufferSource();src.buffer=buf;src.connect(dest);stream=new MediaStream([...stream.getVideoTracks(),...dest.stream.getAudioTracks()])}catch(e){src=null}}
-  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6e6});const chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};const stopped=new Promise(r=>rec.onstop=r);
-  rec.start(250);if(src)src.start();const dt=1000/p.fps,t0=performance.now();
-  for(let i=0;i<n;i++){compose(exX,layerFor(i),i);exProg((i+1)/n);const w=t0+(i+1)*dt-performance.now();if(w>0)await sleep(w)}
-  await sleep(dt);if(src){try{src.stop()}catch(e){}}rec.stop();stream.getTracks().forEach(tr=>tr.stop());await stopped;
-  const blob=new Blob(chunks,{type:mime.split(';')[0]});exMsg('');await saveFile(fname(mime.includes('mp4')?'mp4':'webm'),blob)}
- catch(e){exMsg(t('exportFail'))}setExBusy(false);exProg(null)}
-async function exportZip(){const n=ST.frames.length;if(!n){exMsg(t('noFrames'));return}if(!window.JSZip){exMsg(t('exportFail'));return}
- setExBusy(true);exC.classList.add('on');exMsg(t('preparing'));const z=new JSZip();
- try{for(let i=0;i<n;i++){compose(exX,layerFor(i),i);z.file('image_'+String(i+1).padStart(3,'0')+'.png',await canvasBlob(exC,'image/png'));exProg((i+1)/n)}
-  if(ST.voice){const ext=ST.voice.mime.includes('mp4')?'m4a':ST.voice.mime.includes('ogg')?'ogg':'webm';z.file('voix.'+ext,dataToBuf(ST.voice.data))}
-  const blob=await z.generateAsync({type:'blob'});exMsg('');await saveFile(fname('zip'),blob)}catch(e){exMsg(t('exportFail'))}setExBusy(false);exProg(null)}
-async function exportPng(){const i=ST.mode==='frame'&&ST.cur>=0?ST.cur:ST.frames.length-1;if(i<0){exMsg(t('noFrames'));return}compose(exX,layerFor(i),i);exC.classList.add('on');
- await saveFile(fname('png').replace(/\.png$/,'_'+(i+1)+'.png'),await canvasBlob(exC,'image/png'))}
-async function projectBlob(p){const frames=[];for(const id of p.frameIds){const r=await DB.get('frames',p.id+':'+id);if(r)frames.push({id,data:r.data})}const v=await DB.get('frames',p.id+':voice').catch(()=>null);
- return new Blob([JSON.stringify({format:'stop-motion-virtuose',version:2,project:p,frames,voice:v?{data:v.data,mime:v.mime,dur:v.dur}:null})],{type:'application/json'})}
-async function exportJson(){setExBusy(true);exMsg(t('preparing'));await saveNow();try{await saveFile(fname('json'),await projectBlob(ST.p))}catch(e){toast(t('exportFail'))}exMsg('');setExBusy(false)}
-async function importProject(file){try{const o=JSON.parse(await file.text());if(!o||o.format!=='stop-motion-virtuose'||!o.project||!Array.isArray(o.frames))throw 0;
- const p={...newProjectObj(o.project.name||t('defaultName'),o.project.orient),...o.project,id:uid(),updated:Date.now()};p.frameIds=[];
- for(const f of o.frames){if(typeof f.data!=='string'||!f.data.startsWith('data:image/'))continue;const id=uid();await DB.put('frames',{key:p.id+':'+id,data:f.data});p.frameIds.push(id)}
- if(o.voice&&typeof o.voice.data==='string'&&o.voice.data.startsWith('data:audio/')){await DB.put('frames',{key:p.id+':voice',data:o.voice.data,mime:o.voice.mime||'audio/webm',dur:+o.voice.dur||0});p.hasVoice=true}else p.hasVoice=false;
- await DB.put('projects',p);toast(t('projImported'));renderProjects()}catch(e){toast(t('badFile'))}}
-
 /* ================= PROJETS ================= */
 function fmtDate(ts){return new Intl.DateTimeFormat(LANG==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short'}).format(ts)}
 async function allProjects(){try{return await DB.all('projects')}catch(e){return[]}}
@@ -1281,16 +1359,13 @@ function show(name){if(current==='studio'&&name!=='studio')leaveStudio();$$('.sc
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 $('#hNew').onclick=createProject;$('#pNew').onclick=createProject;
 $('#pSearch').oninput=renderProjects;$('#pSort').onchange=renderProjects;
-$('#pImport').onclick=()=>$('#fileProject').click();
-$('#fileProject').onchange=e=>{const f=e.target.files[0];if(f)importProject(f);e.target.value=''};
 
 /* ================= COMMANDES DU STUDIO ================= */
 $('#sBack').onclick=()=>show('home');
 $('#pName').oninput=e=>{ST.p.name=e.target.value.trim()||t('defaultName');scheduleSave()};
 $$('.stepseg button').forEach(b=>b.onclick=()=>setStep(b.dataset.step));
 $('#tDone').onclick=()=>setStep('dub');
-$('#sExport').onclick=openExport;$('#exClose').onclick=closeExport;
-$('#exVideo').onclick=exportVideo;$('#exZip').onclick=exportZip;$('#exPng').onclick=exportPng;$('#exJson').onclick=exportJson;
+$('#sExport').onclick=()=>openExport();
 $('#tShoot').onclick=shoot;$('#tPlay').onclick=togglePlay;$('#tPrev').onclick=prev;$('#tNext').onclick=next;
 $('#tOnion').onclick=()=>{ST.onion=!ST.onion;updateUI()};
 $('#tTimer').onclick=()=>{const o=[0,3,5,10];SET.timer=o[(o.indexOf(SET.timer)+1)%o.length];saveSettings();toast(SET.timer?t('timerOn',{s:SET.timer}):t('timerOff'));updateUI()};
@@ -1493,16 +1568,172 @@ document.addEventListener('keydown',e=>{if(current==='studio'&&(e.ctrlKey||e.met
 const _openProject=openProject;openProject=async function(id,x){ST.undo=[];closePops();await _openProject(id,x);syncOpts();updateUI()};
 const _leaveStudio=leaveStudio;leaveStudio=function(){closePops();_leaveStudio()};
 
-/* --- partager --- */
-let lastShare=null;
-const _saveFile=saveFile;
-saveFile=async function(name,blob){if(ST.shareNext){ST.shareNext=false;const f=new File([blob],name,{type:blob.type||'video/webm'});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:ST.p?ST.p.name:'Stop Motion Virtuose',text:t('shareText')});return}catch(e){if(e&&e.name==='AbortError')return;lastShare=f;$('#exShareNow').hidden=false;return}}
-  toast(t('shareFallback'))}return _saveFile(name,blob)};
-$('#exShare').hidden=!navigator.share;
-$('#exShare').onclick=()=>{ST.shareNext=true;$('#exShareNow').hidden=true;exportVideo()};
-$('#exShareNow').onclick=async()=>{if(!lastShare)return;try{await navigator.share({files:[lastShare],title:ST.p?ST.p.name:'',text:t('shareText')})}catch(e){if(!(e&&e.name==='AbortError'))_saveFile(lastShare.name,lastShare)}$('#exShareNow').hidden=true};
-const _openExport=openExport;openExport=function(){closePops();$('#exShareNow').hidden=true;_openExport()};
+/* ================= v1.6 : TÉLÉPHONE, EXPORT VIDÉO, SON, CORRECTIONS ================= */
+Object.assign(I18N.fr,{imported1:"1 image ajoutée",exported:"Vidéo téléchargée",toolFx:"Effets",toolFilm:"Film",toolMore:"Plus",pause:"Pause",close:"Fermer",filmName:"Nom du film",sortBy:"Trier",green:"Vert",blue:"Bleu",
+ rotLand:"Tourne ton téléphone pour avoir plus de place",rotPort:"Tourne ton téléphone à la verticale pour ce film",
+ exportTitle:"Ta vidéo",exDownload:"Télécharger la vidéo",exDownloadSub:"Avec le fond vert et les effets",exDownloadSubVoice:"Avec le fond vert, les effets et ta voix",
+ exShare:"Partager la vidéo",exShareSub:"Envoyer à tes amis ou ta famille",videoReady:"Ta vidéo est prête !",downloaded:"Vidéo téléchargée",recordingVideo:"Création de la vidéo…",
+ onionSub:"Affiche les photos précédentes en transparence pour bien placer ton personnage.",fxPlaced:"Effet ajouté",
+ keysNote:"Clavier : Espace = photo · ← → = images · P = lecture · Suppr = supprimer l'image · Ctrl+Z = annuler"});
+Object.assign(I18N.en,{imported1:"1 frame added",exported:"Video downloaded",toolFx:"Effects",toolFilm:"Film",toolMore:"More",pause:"Pause",close:"Close",filmName:"Film name",sortBy:"Sort",green:"Green",blue:"Blue",
+ rotLand:"Turn your phone for more room",rotPort:"Turn your phone upright for this film",
+ exportTitle:"Your video",exDownload:"Download the video",exDownloadSub:"With green screen and effects",exDownloadSubVoice:"With green screen, effects and your voice",
+ exShare:"Share the video",exShareSub:"Send it to friends or family",videoReady:"Your video is ready!",downloaded:"Video downloaded",recordingVideo:"Making the video…",
+ onionSub:"Shows the previous photos see-through so you can place your character.",fxPlaced:"Effect added",
+ keysNote:"Keyboard: Space = photo · ← → = frames · P = play · Delete = delete frame · Ctrl+Z = undo"});
+LEARN.fr.steps[3]=["Vérifie avec le calque","Le bouton Calque montre la photo d'avant en transparence."];
+LEARN.en.steps[3]=["Check with the overlay","The Overlay button shows the previous photo see-through."];
+LEARN.fr.gs[2]=["Choisis la couleur avec la pipette","Si un peu de fond reste visible, monte la tolérance dans « Réglages fins »."];
+LEARN.en.gs[2]=["Pick the colour with the eyedropper","If some background is still visible, raise the tolerance in “Fine tuning”."];
+
+/* --- son de prise de photo : petit déclic d'obturateur, discret --- */
+function shutterSound(){if(!SET.sound)return;const a=ac();if(!a)return;const t0=a.currentTime+.005;
+ const click=(at,dur,freq,vol)=>{const len=Math.max(1,Math.floor(a.sampleRate*dur)),b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(len*.16));
+  const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;f.Q.value=1.4;const g=a.createGain();g.gain.value=vol;s.connect(f).connect(g).connect(a.destination);s.start(at)};
+ click(t0,.022,3400,.32);click(t0+.065,.03,2300,.22);
+ const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(170,t0);o.frequency.exponentialRampToValueAtTime(80,t0+.05);
+ g.gain.setValueAtTime(.05,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+.06);o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+.07)}
+
+/* --- le fond vert s'applique toujours au film exporté, quelle que soit la vue choisie --- */
+function keyOn(){const ch=ST.p&&ST.p.chroma;if(!ch||!ch.on||!ch.colors.length)return false;if(ST.outMode)return true;return!ST.picking&&ST.view!=='original'}
+const _saveNow=saveNow;saveNow=function(){ST.outMode=true;try{return _saveNow()}finally{ST.outMode=false}};
+
+/* --- mise en page selon l'écran : ordinateur, téléphone vertical, téléphone horizontal --- */
+const M={mode:'desk',sheet:null,reopen:null};
+function layoutMode(){const w=innerWidth,h=innerHeight;if(w>h&&h<=560)return'm-land';if(w<=900)return'm-port';return'desk'}
+function isMobile(){return M.mode!=='desk'}
+function applyLayout(){const m=layoutMode();if(m!==M.mode){const s=$('#studio');s.classList.remove('m-port','m-land');if(m!=='desk')s.classList.add(m);M.mode=m;closePops();if(m==='desk')closeSheet()}
+ updateRotTip();requestAnimationFrame(fitStage)}
+addEventListener('resize',applyLayout);addEventListener('orientationchange',()=>setTimeout(applyLayout,250));
+function sheetSize(){return M.mode==='m-port'?innerHeight*.56:Math.min(400,innerWidth*.58)}
+function fitStage(){const wr=$('#stageWrap');if(!wr)return;let aw=wr.clientWidth-20,ah=wr.clientHeight-20;
+ if(M.sheet){const r=wr.getBoundingClientRect();if(M.mode==='m-port')ah=Math.min(ah,Math.max(90,innerHeight-sheetSize()-r.top-20));else if(M.mode==='m-land')aw=Math.min(aw,Math.max(140,innerWidth-sheetSize()-r.left-20))}
+ if(aw<=0||ah<=0)return;const ar=W/H;let w=aw,h=w/ar;if(h>ah){h=ah;w=h*ar}const b=$('#stageBox');b.style.width=Math.floor(w)+'px';b.style.height=Math.floor(h)+'px'}
+function openSheet(name){if(!isMobile()||!ST.p||ST.step!=='shoot')return;closePops();const d=$(`.acc[data-acc="${name}"]`);if(!d)return;d.open=true;
+ $('#studio').classList.add('sheet-open');M.sheet=name;
+ $$('.mtool,.stab').forEach(b=>b.classList.toggle('on',b.dataset.sheet===name));requestAnimationFrame(fitStage);setTimeout(fitStage,320)}
+function closeSheet(){if(!M.sheet&&!$('#studio').classList.contains('sheet-open'))return;$('#studio').classList.remove('sheet-open');M.sheet=null;$$('.mtool').forEach(b=>b.classList.remove('on'));requestAnimationFrame(fitStage);setTimeout(fitStage,320)}
+$$('.mtool').forEach(b=>b.onclick=()=>{M.sheet===b.dataset.sheet?closeSheet():openSheet(b.dataset.sheet)});
+$$('.stab').forEach(b=>b.onclick=()=>openSheet(b.dataset.sheet));
+$('#sheetX').onclick=closeSheet;$('#sheetBg').onclick=closeSheet;
+(()=>{let y0=null;const h=$('#studio .sheet-head');h.addEventListener('pointerdown',e=>{if(M.mode==='m-port'&&!e.target.closest('button'))y0=e.clientY});
+ h.addEventListener('pointerup',e=>{if(y0!=null&&e.clientY-y0>50)closeSheet();y0=null});h.addEventListener('pointercancel',()=>y0=null)})();
+/* pipette : le tiroir s'efface le temps de toucher l'image, puis revient */
+const _setPicking=setPicking;setPicking=function(on,add){_setPicking(on,add);updateRotTip();if(on&&isMobile()&&M.sheet==='chroma'){M.reopen='chroma';closeSheet()}else if(!on&&M.reopen){const r=M.reopen;M.reopen=null;if(isMobile()&&ST.active&&ST.step==='shoot')openSheet(r)}};
+/* effet : le tiroir se ferme pour toucher la scène */
+const _setPlacing=setPlacing;setPlacing=function(type){const had=ST.placing;_setPlacing(type);updateRotTip();if(type&&isMobile())closeSheet();else if(!type&&had&&isMobile()&&ST.p&&ST.p.effects.some(e=>e.id===ST.selFx))toast(t('fxPlaced'))};
+
+/* conseil : tourner le téléphone */
+function updateRotTip(){const el=$('#rotTip');let k=null;
+ if(current==='studio'&&ST.p&&ST.step==='shoot'){let off=false;try{off=sessionStorage.getItem('smv-rot')==='1'}catch(e){}
+  if(!off&&!ST.picking&&!ST.placing){if(M.mode==='m-port'&&W>H)k='rotLand';else if(M.mode==='m-land'&&H>W)k='rotPort'}}
+ el.hidden=!k;if(k)$('#rotTipTx').textContent=t(k)}
+$('#rotTipX').onclick=()=>{try{sessionStorage.setItem('smv-rot','1')}catch(e){}updateRotTip()};
+
+/* fenêtres flottantes : à gauche du rail en mode horizontal */
+function openPop(btn){const id=btn.dataset.pop,p=$('#'+id),was=p.classList.contains('on');closePops();if(was)return;closeSheet();syncOpts();p.classList.add('on');btn.classList.add('open');
+ const r=btn.getBoundingClientRect(),w=p.offsetWidth,h=p.offsetHeight;let left,top;
+ if(M.mode==='m-land'){left=Math.max(8,r.left-w-12);top=clamp(r.top+r.height/2-h/2,8,innerHeight-h-8)}
+ else{left=clamp(r.left+r.width/2-w/2,8,innerWidth-w-8);top=r.top-h-12;if(top<8)top=Math.min(innerHeight-h-8,r.bottom+12)}
+ p.style.left=left+'px';p.style.top=Math.max(8,top)+'px'}
+
+/* plein écran : seulement s'il est disponible (pas sur iPhone) */
+if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))$('#tFull').hidden=true;
+
+/* libellé du bouton lecture */
+const _updateUI16=updateUI;updateUI=function(){_updateUI16();if(!ST.p)return;const l=ST.playing?t('pause'):t('play');$('#tPlay').title=l;$('#tPlay').setAttribute('aria-label',l)};
+
+/* --- supprimer / annuler : effets bien replacés, pas de doubles suppressions --- */
+function deleteFrame(){const i=ST.cur;if(i<0||!ST.p||ST.step!=='shoot')return;stopPlay();const p=ST.p,f=ST.frames[i];if(!f)return;
+ ST.frames.splice(i,1);p.frameIds.splice(i,1);ST.keyCache.delete(f.id);
+ const moved=[];p.effects.forEach(e=>{if(e.start>i){e.start-=1;moved.push(e.id)}});
+ DB.del('frames',p.id+':'+f.id).catch(()=>{});
+ ST.undo=ST.undo||[];ST.undo.push({type:'del',index:i,frame:f,data:f.img.src,moved});if(ST.undo.length>30)ST.undo.shift();
+ scheduleSave();renderStrip();renderFxList();if(ST.frames.length)selectFrame(Math.min(i,ST.frames.length-1));else goLive();toastUndo(t('photoDeleted'))}
+async function undo(){if(!ST.p||!ST.undo||!ST.undo.length||ST.step!=='shoot'||ST.busy||$('.modal.on'))return;stopPlay();const u=ST.undo.pop(),p=ST.p;
+ if(u.type==='add'){for(const id of u.ids){const i=p.frameIds.indexOf(id);if(i<0)continue;p.frameIds.splice(i,1);ST.frames.splice(i,1);ST.keyCache.delete(id);DB.del('frames',p.id+':'+id).catch(()=>{})}}
+ else if(u.type==='del'){const at=Math.min(u.index,ST.frames.length);ST.frames.splice(at,0,u.frame);p.frameIds.splice(at,0,u.frame.id);
+  const ids=new Set(u.moved||[]);p.effects.forEach(e=>{if(ids.has(e.id))e.start+=1});try{await DB.put('frames',{key:p.id+':'+u.frame.id,data:u.data})}catch(e){}}
+ scheduleSave();renderStrip();renderFxList();
+ if(u.type==='del')selectFrame(Math.min(u.index,ST.frames.length-1));else if(ST.mode==='frame'&&ST.cur>=ST.frames.length){ST.frames.length?selectFrame(ST.frames.length-1):goLive()}
+ toast(t('undone'))}
+document.addEventListener('keydown',e=>{if(e.repeat&&(e.key==='Delete'||e.key==='Backspace')&&current==='studio'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))e.stopImmediatePropagation()},true);
+
+/* --- doublage : la voix va toujours dans le bon film, le micro s'éteint bien --- */
+async function dubRecord(){if(DUB.recording){dubFinishRec();return}if(!ST.frames.length)return;dubStopPlay();DUB.rec=null;
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){toast(t('micNo'));return}
+ const proj=ST.p;let mic;
+ try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}catch(e){toast(t('micNo'));$('#dStatus2').textContent=t('micNo');return}
+ if(!ST.active||ST.p!==proj||ST.step!=='dub'){mic.getTracks().forEach(tr=>tr.stop());return}
+ DUB.mic=mic;DUB.recording=true;startMeter(mic);renderDubUI();DUB.last=-1;dubShow(0);
+ const cd=$('#countdown');for(let s=3;s>0&&DUB.recording;s--){cd.textContent=s;cd.classList.add('on');if(SET.sound)beep(s===1?880:660);await sleep(800)}cd.classList.remove('on');
+ if(!DUB.recording||!ST.active||ST.p!==proj){DUB.recording=false;cleanupMic();renderDubUI();return}
+ const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
+ let rec;try{rec=new MediaRecorder(mic,mime?{mimeType:mime}:undefined)}catch(e){toast(t('micNo'));DUB.recording=false;cleanupMic();renderDubUI();return}
+ const chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+ rec.onstop=async()=>{cleanupMic();const type=rec.mimeType||mime||'audio/webm';const blob=new Blob(chunks,{type});
+  if(blob.size){const data=await blobToData(blob);const dur=Math.min(proj.frameIds.length/proj.fps,(performance.now()-DUB.recStart)/1000);
+   try{await DB.put('frames',{key:proj.id+':voice',data,mime:type,dur})}catch(e){toast(t('noStorage'))}proj.hasVoice=true;
+   if(ST.p===proj){ST.voice={data,mime:type,dur};scheduleSave();toast(t('voiceOk'))}else{try{await DB.put('projects',JSON.parse(JSON.stringify(proj)))}catch(e){}}}
+  DUB.recording=false;renderDubUI()};
+ DUB.rec=rec;rec.start();DUB.recStart=performance.now();buzzLite();dubPlay(false,()=>{if(rec.state!=='inactive')rec.stop()});renderDubUI()}
+function buzzLite(){try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}}
+const _setStep=setStep;setStep=function(s){if(s==='dub'&&ST.p&&ST.view!=='result'){ST.view='result';syncChroma()}M.reopen=null;closeSheet();closePops();_setStep(s);updateRotTip()};
+
+/* --- export : la vidéo se prépare, puis on la partage ou on la télécharge --- */
+const EX={blob:null,sig:'',ext:'webm',url:null,abort:false,running:false};
+const canShareFiles=(()=>{try{return!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'a.mp4',{type:'video/mp4'})]}))}catch(e){return false}})();
+function exportSig(){const p=ST.p;return JSON.stringify([p.id,p.frameIds,p.effects,p.chroma,p.bg.kind,p.bg.id||'',p.bg.gid||'',p.fps,p.orient,ST.voice?ST.voice.dur+':'+ST.voice.data.length:0,LANG])}
+function exButtons(on){$('#exShare').hidden=!canShareFiles;$('#exShare').disabled=!on;$('#exDownload').disabled=!on}
+function exView(which){$('#exPreview').classList.toggle('on',which==='canvas');$('#exVid').classList.toggle('on',which==='video')}
+function exMsg(m,ok){const el=$('#exMsg');el.textContent=m||'';el.classList.toggle('ok',!!ok)}
+function openExport(){if(!ST.p)return;closePops();closeSheet();stopPlay();dubStopAll();setPicking(false);setPlacing(null);
+ $('#exDownloadSub').textContent=ST.voice?t('exDownloadSubVoice'):t('exDownloadSub');$('#mExport').classList.add('on');exButtons(false);exProg(null);
+ if(!ST.frames.length){exView(null);exMsg(t('noFrames'));return}
+ if(EX.blob&&EX.sig===exportSig()){exReady();return}
+ buildVideo()}
+async function buildVideo(){const p=ST.p,n=ST.frames.length;
+ const withA=!!ST.voice;const types=withA?['video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']:['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+ const mime=window.MediaRecorder&&MediaRecorder.isTypeSupported?types.find(m=>MediaRecorder.isTypeSupported(m)):null;
+ if(!mime||!exC.captureStream){exView(null);exMsg(t('noVideoExport'));return}
+ EX.abort=false;EX.running=true;ST.busy=true;exView('canvas');exMsg(t('recordingVideo'));exProg(0);const sig=exportSig();let src=null,stream=null,rec=null;
+ const draw=i=>{ST.outMode=true;try{compose(exX,layerFor(i),i)}finally{ST.outMode=false}};
+ try{draw(0);stream=exC.captureStream(p.fps);
+  if(withA){try{const a=ac();await a.resume();const buf=await a.decodeAudioData(dataToBuf(ST.voice.data));const dest=a.createMediaStreamDestination();src=a.createBufferSource();src.buffer=buf;src.connect(dest);stream=new MediaStream([...stream.getVideoTracks(),...dest.stream.getAudioTracks()])}catch(e){src=null}}
+  rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6e6});const chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};const stopped=new Promise(r=>rec.onstop=r);
+  rec.start(250);if(src)src.start();const dt=1000/p.fps,t0=performance.now();
+  for(let i=0;i<n&&!EX.abort;i++){draw(i);exProg((i+1)/n);const w=t0+(i+1)*dt-performance.now();if(w>0)await sleep(w)}
+  if(!EX.abort)await sleep(dt);
+  if(src){try{src.stop()}catch(e){}}rec.stop();await stopped;stream.getTracks().forEach(tr=>tr.stop());
+  if(!EX.abort&&ST.p===p){EX.blob=new Blob(chunks,{type:mime.split(';')[0]});EX.ext=mime.includes('mp4')?'mp4':'webm';EX.sig=sig;if($('#mExport').classList.contains('on'))exReady()}}
+ catch(e){try{rec&&rec.state!=='inactive'&&rec.stop()}catch(_){}try{stream&&stream.getTracks().forEach(tr=>tr.stop())}catch(_){}if(!EX.abort)exMsg(t('exportFail'))}
+ EX.running=false;ST.busy=false;exProg(null)}
+function exReady(){if(EX.url)URL.revokeObjectURL(EX.url);EX.url=URL.createObjectURL(EX.blob);const v=$('#exVid');v.src=EX.url;exView('video');exMsg(t('videoReady'),true);exButtons(true);exProg(null)}
+function closeExport(){if(EX.running)EX.abort=true;const v=$('#exVid');try{v.pause()}catch(e){}$('#mExport').classList.remove('on');if(!ST.p)return;if(ST.step==='dub'){DUB.last=-1;dubShow(0)}else refresh()}
+function exFile(){return new File([EX.blob],fname(EX.ext),{type:EX.blob.type||('video/'+EX.ext)})}
+$('#exDownload').onclick=async()=>{if(!EX.blob)return;await saveFile(fname(EX.ext),EX.blob);exMsg(t('downloaded'),true)};
+$('#exShare').onclick=async()=>{if(!EX.blob)return;const f=exFile();try{await navigator.share({files:[f],title:ST.p?ST.p.name:'Stop Motion Virtuose',text:t('shareText')})}
+ catch(e){if(e&&e.name==='AbortError')return;toast(t('shareFallback'));await saveFile(f.name,EX.blob);exMsg(t('downloaded'),true)}};
+$('#exX').onclick=closeExport;
+$('#mExport').addEventListener('click',e=>{if(e.target===$('#mExport'))closeExport()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#mExport.on')&&ST.busy)closeExport()});
+
+/* --- ouverture / sortie du studio --- */
+const _openProject16=openProject;openProject=async function(id,x){M.reopen=null;closeSheet();EX.abort=true;await _openProject16(id,x);applyLayout();updateRotTip()};
+const _leaveStudio16=leaveStudio;leaveStudio=function(){M.reopen=null;closeSheet();if(EX.running)EX.abort=true;_leaveStudio16();$('#rotTip').hidden=true};
+const _show16=show;show=function(name){_show16(name);if(name!=='studio')$('#rotTip').hidden=true};
+
+/* --- stockage plus sûr : pas de bascule en cours de route, demande de conservation --- */
+DB.open=function(){return new Promise(res=>{let done=false;const finish=v=>{if(!done){done=true;res(v)}};
+ try{const r=indexedDB.open('stopmotion-virtuose',2);
+  r.onupgradeneeded=()=>{const d=r.result;for(const [n,k] of [['projects','id'],['frames','key'],['gallery','id']])if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:k})};
+  r.onsuccess=()=>{if(done){try{r.result.close()}catch(e){}return}this.db=r.result;this.db.onversionchange=()=>{try{this.db.close()}catch(e){}};finish(true)};
+  r.onerror=()=>finish(false);
+  r.onblocked=()=>setTimeout(()=>finish(false),4000)}catch(e){finish(false)}});};
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(e){}
+
+applyLayout();
 
 /* ================= DÉMARRAGE ================= */
 (async function init(){loadSettings();applyTheme();applyI18n();const ok=await DB.open();if(!ok)toast(t('noStorage'));renderHome();getDl()})();
