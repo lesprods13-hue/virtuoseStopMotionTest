@@ -12,8 +12,12 @@ Tout fonctionne dans le navigateur, sans installation et sans compte.
 - **Calque** : la dernière photo s'affiche en transparence pour bien placer ses personnages
 - **Formats** paysage ou portrait, choisis à la création du film
 - **Fond vert** : pipette pour choisir la couleur à effacer, vues Résultat / Masque / Original, réglages fins (tolérance, douceur, nettoyage, bords, reflets)
-- **Images de fond** : décors fixes ou animés, ou tes propres images depuis ta galerie
-- **Effets spéciaux** : explosions, BD, nature, magie, effets de caméra
+- **12 décors cartoon** : plage tropicale, bateau pirate, sous la mer, ville la nuit, sur la Lune, jungle, château fort, montagne, Far West, volcan, théâtre, manoir hanté — ou tes propres images depuis ta galerie
+- **Effets spéciaux** : explosions, BD, nature, magie, effets de caméra, cartons **Titre** et **FIN**
+- **Sons des effets** (boum, zap, pouf…) pendant la lecture et dans la vidéo, créés directement par l'appli
+- **Photo auto** toutes les 2, 3, 5 ou 10 secondes, pour avoir les deux mains libres
+- **Écran toujours allumé** pendant le tournage, et **lumière bloquée** contre le scintillement (sur les téléphones qui le permettent)
+- **Conseils de démarrage** pour la première photo
 - **Vitesse de lecture** réglable (4 à 24 images par seconde), lecture en boucle, plein écran
 - **Annuler** la dernière photo ou la dernière suppression (Ctrl+Z)
 - **Doublage** au micro une fois le tournage terminé
@@ -24,8 +28,10 @@ Tout fonctionne dans le navigateur, sans installation et sans compte.
 
 ## Utilisation
 
-Ouvre simplement `index.html` dans un navigateur récent (Chrome, Edge, Safari ou Firefox).
-Le navigateur demandera l'autorisation d'utiliser la caméra et le micro.
+Le plus simple : **https://stop-motion-virtuose.vercel.app** (Chrome, Edge, Safari ou Firefox récents).
+Le navigateur demande l'autorisation d'utiliser la caméra et le micro. Une fois ouverte, l'appli marche aussi sans connexion.
+
+Pour la tester sur ton ordinateur, lance un petit serveur dans ce dossier (par exemple `python3 -m http.server`) puis ouvre `http://localhost:8000` : les décors ne s'affichent pas si on ouvre `index.html` en double-cliquant.
 
 ## Mettre en ligne avec GitHub Pages
 
@@ -45,8 +51,10 @@ Rien n'est envoyé sur internet. Les films restent sur l'appareil où ils ont é
 
 ```
 index.html        l'application complète (HTML, CSS et JavaScript)
+sw.js             fonctionnement hors ligne
 manifest.json     informations pour l'installation sur l'écran d'accueil
 icons/            icônes de l'application
+decors/           les 12 décors (WebP) et leurs vignettes ; decors/source/ contient le script qui les dessine
 ```
 
 Une connexion internet sert seulement à charger la police Fredoka.
