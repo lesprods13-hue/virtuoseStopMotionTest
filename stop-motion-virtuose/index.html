@@ -523,6 +523,7 @@ button,.cell,.tile,.chip,.stab,.menu-item,.shutter{touch-action:manipulation}
 #studio{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #studio input,#studio .pname{-webkit-user-select:text;user-select:text}
 .dtile img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#3A3560}
+#studio.portrait .dtile img{aspect-ratio:3/4;object-position:50% 62%}
 .menu-item .msub{margin-left:auto;border:2px solid var(--edge);border-radius:9px;background:var(--soft);padding:2px 8px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
 .auto-chip{position:absolute;top:10px;right:10px;z-index:3;display:flex;align-items:center;gap:6px;border:2.5px solid var(--edge);border-radius:999px;background:var(--red);color:#fff;font:inherit;font-size:13px;font-weight:700;padding:4px 10px 4px 8px;box-shadow:0 3px 0 var(--edge);cursor:pointer}
 .auto-chip .ico{width:16px;height:16px}
@@ -606,6 +607,11 @@ button,.cell,.tile,.chip,.stab,.menu-item,.shutter{touch-action:manipulation}
 #studio.m-land .stepseg button{padding:6px 9px}
 /* fond vert : bouton réglage auto */
 .kstep #cAuto{margin-left:auto;min-height:34px;font-size:13px}
+#xEmpty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:min(320px,calc(100% - 32px));z-index:5;pointer-events:none;background:var(--surface);color:var(--ink);border:2.5px solid var(--edge);border-radius:18px;box-shadow:0 4px 0 var(--edge);padding:14px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:80%}
+#xEmpty[hidden]{display:none}#xEmpty b{font-size:20px}#xEmpty span{font-size:14px;color:var(--muted)}#xEmpty i{font-style:normal;font-size:26px;font-weight:700;color:var(--red,#FF4D4D);animation:xbob 1s ease-in-out infinite}
+@keyframes xbob{50%{transform:translate(var(--bx,0),var(--by,6px))}}
+@media (prefers-reduced-motion: reduce){#xEmpty i{animation:none}}
+.toast.top{bottom:auto;top:calc(74px + env(safe-area-inset-top,0px));pointer-events:none}
 </style>
 </head>
 <body>
@@ -1105,6 +1111,9 @@ const DECORS=['plage','pirate','ocean','nuit','espace','jungle','chateau','monta
 const DECOR_OLD={ciel:'chateau',foret:'jungle',desert:'farwest',scene:'theatre',mer:'ocean',nuages:'chateau',pluie:'nuit',neige:'montagne',vagues:'plage',hyper:'espace',aurore:'montagne',disco:'theatre'};
 const DIMG={};
 function decorImg(id){if(!DECORS.includes(id))return null;if(!DIMG[id]){const im=new Image();im.decoding='async';im.onload=()=>{if(ST.p&&ST.p.bg&&ST.p.bg.id===id)refresh()};im.src='decors/'+id+'.webp';DIMG[id]=im}return DIMG[id]}
+/* décors verticaux (decors/p/) pour les films en portrait */
+const DIMG_O={};function decorOr(){return H>W?'p':'l'}function decorMini(id){return(decorOr()==='p'?'decors/p/mini/':'decors/mini/')+id+'.webp'}
+decorImg=function(id){if(!DECORS.includes(id))return null;const o=decorOr(),k=o+id;if(!DIMG_O[k]){const im=new Image();im.decoding='async';im.onload=()=>{if(ST.p&&ST.p.bg&&ST.p.bg.id===id){if(ST.step==='shoot')refresh();else if(typeof renderAt==='function')renderAt(ST.step==='fx'&&typeof X!=='undefined'?X.t:0)}};im.src=(o==='p'?'decors/p/':'decors/')+id+'.webp';DIMG_O[k]=im}DIMG[id]=DIMG_O[k];return DIMG[id]};
 function decorReady(id){const im=decorImg(id);if(!im)return Promise.resolve();if(im.complete&&im.naturalWidth)return Promise.resolve();return new Promise(r=>{im.addEventListener('load',r,{once:true});im.addEventListener('error',r,{once:true});setTimeout(r,8000)})}
 function fixDecor(bg){if(bg&&bg.kind==='preset'&&!DECORS.includes(bg.id))bg.id=DECOR_OLD[bg.id]||(DECORS.includes(bg.id)?bg.id:'plage');return bg}
 function drawChecker(c){c.fillStyle="#2B2938";c.fillRect(0,0,W,H);c.fillStyle="#34324A";for(let y=0;y<H;y+=30)for(let x=(y/30%2)*30;x<W;x+=60)c.fillRect(x,y,30,30)}
@@ -1564,7 +1573,7 @@ async function buildBgTiles(){const box=$('#bgTiles');box.innerHTML='';$$('#bgCh
    b.innerHTML=`<img alt="" src="${it.data}"><button class="gdel" aria-label="${esc(t('delete'))}">×</button>`;
    b.onclick=async ev=>{if(ev.target.closest('.gdel')){ev.stopPropagation();try{await DB.del('gallery',it.id)}catch(e){}buildBgTiles();return}useGallery(it)};
    b.onkeydown=ev=>{if(ev.key==='Enter')useGallery(it)};box.appendChild(b)}}
- else DECORS.forEach(id=>{const b=document.createElement('button');b.className='tile dtile';b.dataset.id=id;b.innerHTML=`<img alt="" loading="lazy" src="decors/mini/${id}.webp"><span class="tl">${esc(nm(id))}</span>`;b.onclick=()=>pickBg(id);box.appendChild(b)});
+ else DECORS.forEach(id=>{const b=document.createElement('button');b.className='tile dtile';b.dataset.id=id;b.innerHTML=`<img alt="" loading="lazy" src="${decorMini(id)}"><span class="tl">${esc(nm(id))}</span>`;b.onclick=()=>pickBg(id);box.appendChild(b)});
  syncBgTiles()}
 function syncBgTiles(){const b=ST.p.bg;$$('#bgTiles .tile[data-id]').forEach(el=>el.classList.toggle('on',b.kind==='preset'&&b.id===el.dataset.id));$$('#bgTiles .gtile').forEach(el=>el.classList.toggle('on',b.kind==='image'&&b.gid===el.dataset.gid));$('#bgNone').classList.toggle('on',b.kind==='none')}
 function pickBg(id){ST.p.bg={kind:'preset',id,data:null};ST.bgImg=null;enableKeyIfReady();syncBgTiles();refresh();scheduleSave()}
@@ -2024,7 +2033,9 @@ const NFX={
  bleue:{sec:1.3,draw(c,p,tl,s){zBoom(c,p,tl,s,PAL.ice,1)}},
  poof:{sec:.9,draw(c,p,tl,s){const r=rng(s),k=eBack(seg(p,0,.25))*(1-eIn(seg(p,.55,1)));const puffs=[];for(let i=0;i<10;i++){const a=i/10*TAU+r()*.4,d=(60+eOut(p)*70)*(.8+r()*.4);puffs.push([Math.cos(a)*d*1.3,Math.sin(a)*d*.75,(38+r()*22)*k])}puffs.push([0,0,62*k]);zPuffs(c,puffs,'#FFFFFF',5);
   for(let i=0;i<5;i++){const q=seg(p,.1,.8);const a=i/5*TAU+.5;c.globalAlpha=1-q;zSpark(c,Math.cos(a)*(110+q*90),Math.sin(a)*(70+q*60),14*(1-q*.4),'#FFE14D',3)}c.globalAlpha=1}},
- onde:{sec:.8,draw(c,p){for(let j=0;j<2;j++){const q=seg(p,j*.18,1);if(q<=0||q>=1)continue;const R=eOut(q)*330;c.globalAlpha=1-q;c.lineWidth=(16-j*6)*(1-q)+3;c.strokeStyle=ZO;c.beginPath();c.arc(0,0,R,0,TAU);c.stroke();c.lineWidth=Math.max(1,(10-j*4)*(1-q));c.strokeStyle='#FFFFFF';c.stroke()}c.globalAlpha=1}},
+ onde:{sec:.8,draw(c,p){if(p<.18){c.globalAlpha=1-p/.18;c.fillStyle='#FFFFFF';c.beginPath();c.arc(0,0,40+p*300,0,TAU);c.fill();c.globalAlpha=1}
+  for(let j=0;j<2;j++){const q=seg(p,j*.2,1);if(q<=0||q>=1)continue;const R=eOut(q)*320+20;c.globalAlpha=1-eIn(q);c.lineWidth=(30-j*10)*(1-q)+8;c.strokeStyle=ZO;c.beginPath();c.arc(0,0,R,0,TAU);c.stroke();c.lineWidth=(22-j*8)*(1-q)+3;c.strokeStyle=j?'#FFFFFF':'#9FE8FF';c.stroke()}
+  const q=seg(p,0,.7);if(q>0&&q<1){c.globalAlpha=1-q;c.lineCap='round';for(let i=0;i<12;i++){const a=i/12*TAU+.13,r1=60+eOut(q)*230,r2=r1+40*(1-q)+12;c.strokeStyle=ZO;c.lineWidth=12;c.beginPath();c.moveTo(Math.cos(a)*r1,Math.sin(a)*r1);c.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);c.stroke();c.strokeStyle='#FFF6B0';c.lineWidth=6;c.stroke()}}c.globalAlpha=1}},
  boum:{sec:1.2,draw(c,p,tl){zComic(c,p,tl,t('boom'),'#FFD43B','#F2543D','#FFFFFF')}},
  pow:{sec:1.2,draw(c,p,tl){zComic(c,p,tl,t('pow'),'#8FE3FF','#FFFFFF','#E0453A')}},
  zap:{sec:1.2,draw(c,p,tl){zComic(c,p,tl,t('zap'),'#C9B8FF','#6E56CF','#FFD43B')}},
@@ -2258,14 +2269,51 @@ $('#cAuto').onclick=()=>{const ch=ST.p.chroma;if(!ch.colors.length){const k=dete
 $('#cReset').onclick=()=>{Object.assign(ST.p.chroma,KEY_DEF);if(!autoTune(true))chromaChanged();toast(t('autoTuned'))};
 /* activer le fond vert sans pipette : on cherche la couleur tout seul */
 $('#cOn').onchange=e=>{const ch=ST.p.chroma;if(e.target.checked&&!ch.colors.length){const k=detectKey();if(k){ch.colors=[k];ch.on=true;ST._lastKeys=JSON.stringify(ch.colors);autoTune(true);toast(t('keyFound'));return}e.target.checked=false;toast(t('keyNotFound'));setPicking(true,false);return}ch.on=e.target.checked;chromaChanged()};
-/* pendant qu'on règle : vue Masque, comme dans les logiciels de montage */
-let _viewBefore=null;
-for(const id of['cTol','cSoft','cClean','cChoke']){const el=$('#'+id);
- el.addEventListener('pointerdown',()=>{if(!ST.p||!ST.p.chroma.on||!ST.p.chroma.colors.length)return;if(_viewBefore===null){_viewBefore=ST.view;ST.view='matte';syncChroma();refresh()}});
- const back=()=>{if(_viewBefore===null)return;ST.view=_viewBefore;_viewBefore=null;syncChroma();refresh()};el.addEventListener('pointerup',back);el.addEventListener('pointercancel',back);el.addEventListener('change',back)}
 
 /* le calque (pelure d'oignon) ne sert qu'à placer le personnage avant la photo : seulement sur la caméra */
 {const _dO=drawOnion;drawOnion=function(c,before){if(ST.mode!=='live')return;_dO(c,before)}}
+/* ================= v1.9 : FOND VERT FLUIDE + EFFETS EN UN TOUCHER ================= */
+/* Incrustation rapide : pendant qu'on fait glisser un curseur (et sur la caméra en direct), on calcule
+   le détourage sur une image deux fois plus petite, au rythme de l'écran. La pleine qualité revient au lâcher. */
+let KQ=1;
+{const _mk=makeKeyed;makeKeyed=function(img,target){if(KQ>=1)return _mk(img,target);
+ const w=Math.max(2,Math.round(W*KQ)),h=Math.max(2,Math.round(H*KQ)),c=target||document.createElement('canvas');if(c.width!==w||c.height!==h){c.width=w;c.height=h}
+ const x=c.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,w,h);x.drawImage(img,0,0,w,h);const d=x.getImageData(0,0,w,h);
+ const sw=W,sh=H;W=w;H=h;try{keyImageData(d)}finally{W=sw;H=sh}x.putImageData(d,0,0);return c}}
+{const _rl=renderLive;renderLive=function(){const q=KQ;KQ=Math.min(q,.5);try{_rl()}finally{KQ=q}}}
+const KS={drag:false,raf:0};
+function kPaint(){if(KS.raf)return;KS.raf=requestAnimationFrame(()=>{KS.raf=0;if(!ST.p)return;ST.keyVer++;const q=KQ;KQ=KS.drag?.5:1;try{refresh()}finally{KQ=q}})}
+for(const [id,k,f] of [['cTol','tol'],['cSoft','soft'],['cClean','clean'],['cChoke','choke',v=>v+' px'],['cSpill','spill',v=>v+' %']]){const el=$('#'+id);
+ el.oninput=e=>{if(!ST.p)return;ST.p.chroma[k]=+e.target.value;const v=$('#'+id+'V');if(v)v.textContent=f?f(ST.p.chroma[k]):ST.p.chroma[k];if(!ST.p.chroma.on||!ST.p.chroma.colors.length)return;KS.drag=true;kPaint()};
+ el.onchange=()=>{if(!ST.p)return;KS.drag=false;chromaChanged()};
+ const end=()=>{if(KS.drag){KS.drag=false;kPaint()}};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
+
+/* Effets : un toucher sur un effet = il apparaît tout de suite sur l'image et se joue */
+function xQuickAdd(id){if(!ST.p||!FX[id])return;stopRange();let x=.5,y=.5;
+ if(!FX[id].full){const at=Math.min(photoAt(X.t),ST.frames.length-1);const n=ST.p.effects.filter(e=>FX[e.type]&&!FX[e.type].full&&Math.abs(e.start-at)<3).length;const off=[[0,0],[-.18,-.12],[.18,.1],[-.16,.16],[.18,-.14]][n%5];x+=off[0];y+=off[1]}
+ xAdd(id,x,y);$$('#fxPal .tile').forEach(el=>el.classList.toggle('on',el.dataset.fx===id));setTimeout(()=>$$('#fxPal .tile.on').forEach(el=>el.classList.remove('on')),900);
+ toast(FX[id].full?t('fxAddedFull',{fx:nm(id)}):t('fxAddedTip',{fx:nm(id)}),true);xEmptyUI()}
+{const _t=toast;toast=function(m,top){_t(m);$('#toast').classList.toggle('top',!!top)}}
+{const _tu=toastUndo;toastUndo=function(...a){$('#toast').classList.remove('top');return _tu(...a)}}
+{const _b=buildFxPal;buildFxPal=function(){_b();$$('#fxPal .tile').forEach(el=>{el.onclick=()=>xQuickAdd(el.dataset.fx)});xEmptyUI()}}
+xPlacing=function(id){ST.placing=null;stage.classList.remove('placing');if(id)xQuickAdd(id)};
+/* bulle d'aide sur l'image tant qu'il n'y a aucun effet */
+const xEmpty=document.createElement('div');xEmpty.id='xEmpty';xEmpty.hidden=true;stage.parentElement.appendChild(xEmpty);
+function xEmptyUI(){const show=!!(ST.p&&ST.step==='fx'&&!ST.p.effects.length);xEmpty.hidden=!show;if(show)xEmpty.innerHTML=`<b>${esc(t('xEmptyT'))}</b><span>${esc(t(M.mode==='m-port'?'xEmptyDown':'xEmptySide'))}</span><i>${M.mode==='m-port'?'↓':'→'}</i>`}
+{const _ss=setStep;setStep=function(s){_ss(s);xEmptyUI()}}
+{const _ui=xUI;xUI=function(){_ui();xEmptyUI()}}
+Object.assign(I18N.fr,{fineSub:"Fais glisser doucement en regardant l'image : le fond doit disparaître, ton personnage doit rester entier. Le bouton Masque montre le découpage en noir et blanc.",
+ fxSub2:"Touche un effet : il apparaît sur l'image et se joue tout de suite. Fais-le glisser sur l'image pour le déplacer, et glisse sa barre dans la frise pour choisir le moment.",
+ xHintEmpty:"Touche un effet dans la liste : il s'ajoute tout de suite",xHintSel:"Fais glisser l'effet sur l'image, ou sa barre dans la frise",
+ fxAddedTip:"Ajouté : {fx} — glisse-le sur l'image pour le placer",fxAddedFull:"Ajouté au film : {fx}",
+ xEmptyT:"Ajoute un effet !",xEmptyDown:"Touche une animation en bas",xEmptySide:"Touche une animation dans la liste"});
+Object.assign(I18N.en,{fineSub:"Drag slowly while watching the picture: the background should vanish and your character stay whole. The Matte button shows the cut-out in black and white.",
+ fxSub2:"Tap an effect: it appears on the picture and plays right away. Drag it on the picture to move it, and slide its bar in the timeline to pick the moment.",
+ xHintEmpty:"Tap an effect in the list: it's added right away",xHintSel:"Drag the effect on the picture, or its bar in the timeline",
+ fxAddedTip:"Added: {fx} — drag it on the picture to place it",fxAddedFull:"Added to the film: {fx}",
+ xEmptyT:"Add an effect!",xEmptyDown:"Tap an animation below",xEmptySide:"Tap an animation in the list"});
+applyI18n();
+
 /* ================= DÉMARRAGE ================= */
 (async function init(){loadSettings();applyTheme();applyI18n();const ok=await DB.open();if(!ok)toast(t('noStorage'));renderHome();getDl()})();
 </script>
