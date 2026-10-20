@@ -1,6 +1,6 @@
 /* Stop Motion Virtuose — fonctionne hors ligne.
    Réseau d'abord (pour toujours avoir la dernière version), cache si pas de connexion. */
-const CACHE='smv-v1.7';
+const CACHE='smv-v1.8';
 const CORE=['./','index.html','manifest.json','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png',
  ...['plage','pirate','ocean','nuit','espace','jungle','chateau','montagne','farwest','volcan','theatre','manoir'].flatMap(k=>[`decors/${k}.webp`,`decors/mini/${k}.webp`])];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).catch(()=>{}));self.skipWaiting()});
